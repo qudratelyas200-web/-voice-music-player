@@ -1,0 +1,51 @@
+
+name: Build Voice Music Player APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download repository
+        uses: actions/checkout@v4
+
+      - name: Install Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Create Flutter project
+        run: flutter create --platforms=android --project-name voice_music_player generated
+
+      - name: Install app files
+        run: |
+          cp app/pubspec.yaml generated/pubspec.yaml
+          cp app/lib/main.dart generated/lib/main.dart
+          cp app/AndroidManifest.xml generated/android/app/src/main/AndroidManifest.xml
+
+      - name: Get dependencies
+        working-directory: generated
+        run: flutter pub get
+
+      - name: Build debug APK
+        working-directory: generated
+        run: flutter build apk --debug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Voice-Music-Player-APK
+          path: generated/build/app/outputs/flutter-apk/app-debug.apk
+          if-no-files-found: error
+          retention-days: 14
