@@ -1,0 +1,4 @@
+final value = position.inMilliseconds
+    .toDouble()
+    .clamp(0.0, max)
+    .toDouble();
